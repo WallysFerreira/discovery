@@ -2,7 +2,7 @@
 #![no_std]
 
 use cortex_m_rt::entry;
-use rtt_target::rtt_init_print;
+use rtt_target::{rtt_init_print, rprintln};
 use panic_rtt_target as _;
 use core::fmt::Write;
 
@@ -51,9 +51,10 @@ fn main() -> ! {
         UartePort::new(serial)
     };
 
-    let string = "The quick brown fox jumps over the lazy dog";
-    write!(serial, "{}", string).unwrap();
-    nb::block!(serial.flush()).unwrap();
 
-    loop {}
+    loop {
+        let byte = nb::block!(serial.read()).unwrap();
+        nb::block!(serial.write(byte)).unwrap();
+        nb::block!(serial.flush()).unwrap();
+    }
 }
