@@ -4,6 +4,7 @@
 use cortex_m_rt::entry;
 use rtt_target::rtt_init_print;
 use panic_rtt_target as _;
+use core::fmt::Write;
 
 #[cfg(feature = "v1")]
 use microbit::{
@@ -50,10 +51,8 @@ fn main() -> ! {
         UartePort::new(serial)
     };
 
-    let string = b"The quick brown fox jumps over the lazy dog";
-    for bit in string {
-        nb::block!(serial.write(*bit)).unwrap();
-    }
+    let string = "The quick brown fox jumps over the lazy dog";
+    write!(serial, "{}", string).unwrap();
     nb::block!(serial.flush()).unwrap();
 
     loop {}
