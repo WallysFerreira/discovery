@@ -4,6 +4,7 @@
 use cortex_m_rt::entry;
 use rtt_target::{rtt_init_print, rprintln};
 use panic_rtt_target as _;
+use heapless::Vec;
 use core::fmt::Write;
 
 #[cfg(feature = "v1")]
@@ -51,10 +52,26 @@ fn main() -> ! {
         UartePort::new(serial)
     };
 
+    let mut buffer: Vec<u8, 32> = Vec::new();
 
     loop {
-        let byte = nb::block!(serial.read()).unwrap();
-        nb::block!(serial.write(byte)).unwrap();
+        buffer.clear();
+
+        loop {
+            let char = nb::block!(serial.read()).unwrap() ;
+
+            if buffer.push(char).is_err() {
+                write!(serial, "Buffer is full\r\n").unwrap();
+                break;
+            }
+
+            if char  == 13 {
+                for byte in buffer.iter().rev().chain(&[b'\n', b'\r']) {
+                    nb::block!(serial.write(*byte)).unwrap();
+                }
+                break;
+            }
+        }
         nb::block!(serial.flush()).unwrap();
     }
 }
