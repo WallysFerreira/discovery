@@ -17,7 +17,7 @@ fn main() -> ! {
     let mut board = Board::take().unwrap();
     let mut timer = Timer::new(board.TIMER0);
     let mut display = Display::new(board.display_pins);
-    let delay = 20;
+    let delay = 30;
 
     let mut what_to_show = [
         [0, 0, 0, 0, 0],
