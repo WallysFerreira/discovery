@@ -31,22 +31,22 @@ fn main() -> ! {
         for i in 0..9 {
             if i == 0 {
                 for j in 0..5 {
-                    clearArray(&mut what_to_show);
+                    clear_array(&mut what_to_show);
                     what_to_show[i][j] = 1;
                     display.show(&mut timer, what_to_show, delay);
                 }
             } else if i == 4 {
                 for j in (0..5).rev() {
-                    clearArray(&mut what_to_show);
+                    clear_array(&mut what_to_show);
                     what_to_show[i][j] = 1;
                     display.show(&mut timer, what_to_show, delay);
                 }
             } else if i < 5 {
-                clearArray(&mut what_to_show);
+                clear_array(&mut what_to_show);
                 what_to_show[i][4] = 1;
                 display.show(&mut timer, what_to_show, delay);
             } else {
-                clearArray(&mut what_to_show);
+                clear_array(&mut what_to_show);
                 what_to_show[4 - (i - 5)][0] = 1;
                 display.show(&mut timer, what_to_show, delay);
             }
@@ -54,7 +54,7 @@ fn main() -> ! {
     }
 }
 
-fn clearArray(arr: &mut [[u8 ; 5] ; 5]) {
+fn clear_array(arr: &mut [[u8 ; 5] ; 5]) {
     *arr = [
         [0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0],
