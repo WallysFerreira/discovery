@@ -40,11 +40,12 @@ fn main() -> ! {
     let mut sensor = Lsm303agr::new_with_i2c(i2c);
     sensor.init().unwrap();
     sensor.set_accel_odr(AccelOutputDataRate::Hz50).unwrap();
+    sensor.set_mag_odr(lsm303agr::MagOutputDataRate::Hz50).unwrap();
+    let mut sensor = sensor.into_mag_continuous().ok().unwrap();
 
-    let mut buffer: Vec<u8, 32> = Vec::new();
     loop {
-        buffer.clear();
-        
+        let mut buffer: Vec<u8, 32> = Vec::new();
+
         loop {
             let byte = nb::block!(serial.read()).unwrap();
 
@@ -54,16 +55,20 @@ fn main() -> ! {
             }
 
             if byte == 13 {
-                if from_utf8(&buffer).unwrap() == "accelerometer\r" {
-                    write!(serial, "You typed accelerometer\r\n").unwrap();
-                    let data = sensor.accel_data().unwrap();
-                    write!(serial, "x {} y {} z {}\r\n", data.x, data.y, data.z).unwrap();
-                }
-                if from_utf8(&buffer).unwrap() == "magnetometer\r" {
-                    write!(serial, "You typed magnetometer\r\n").unwrap();
-                    break;
-                }
+                break;
             }
+        }
+
+        if from_utf8(&buffer).unwrap() == "accelerometer\r" {
+            write!(serial, "You typed accelerometer\r\n").unwrap();
+            let data = sensor.accel_data().unwrap();
+            write!(serial, "x {} y {} z {}\r\n", data.x, data.y, data.z).unwrap();
+        } else if from_utf8(&buffer).unwrap() == "magnetometer\r" {
+            write!(serial, "You typed magnetometer\r\n").unwrap();
+            let data = sensor.mag_data().unwrap();
+            write!(serial, "x {} y {} z {}\r\n", data.x, data.y, data.z).unwrap();
+        } else {
+            write!(serial, "Command not found\r\n").unwrap();
         }
     }
 }
