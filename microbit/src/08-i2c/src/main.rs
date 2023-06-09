@@ -3,6 +3,7 @@
 
 use cortex_m_rt::entry;
 use core::fmt::Write;
+use core::fmt::format;
 use core::str::from_utf8;
 use rtt_target::{rtt_init_print, rprintln};
 use panic_rtt_target as _;
@@ -58,6 +59,20 @@ fn main() -> ! {
                     break;
                 }
             }
+        }
+    }
+}
+
+fn data_from_accel(board: microbit::Board) -> str {
+    let i2c = { twim::Twim::new(board.TWIM0, board.i2c_interal.into(), FREQUENCY_A::k100) };
+    let mut sensor = Lsm303agr::new_with_i2c(i2c);
+    sensor.init().unwrap();
+    sensor.set_accel_odr(AccelOutputDataRate::Hz50).unwrap();
+
+    loop {
+        if sensor.accel_status().unwrap().xyz_new_data {
+            let data = sensor.accel_data().unwrap();
+            let string = format!("Acceleration: x {} y {} z {}", data.x, data.y, data.z);
         }
     }
 }
