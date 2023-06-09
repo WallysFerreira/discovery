@@ -44,13 +44,20 @@ fn main() -> ! {
             let byte = nb::block!(serial.read()).unwrap();
 
             if buffer.push(byte).is_err() {
-                write!(serial, "Erro lendo comando\r\n").unwrap();
+                write!(serial, "Error reading command\r\n").unwrap();
+                nb::block!(serial.flush()).unwrap();
             }
 
             if byte == 13 {
-                break;
+                if from_utf8(&buffer).unwrap() == "accelerometer\r" {
+                    write!(serial, "You typed accelerometer\r\n").unwrap();
+                    break;
+                }
+                if from_utf8(&buffer).unwrap() == "magnetometer\r" {
+                    write!(serial, "You typed magnetometer\r\n").unwrap();
+                    break;
+                }
             }
         }
-
     }
 }
