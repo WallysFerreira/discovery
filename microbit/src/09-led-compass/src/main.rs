@@ -10,6 +10,8 @@ mod calibration;
 use crate::calibration::calc_calibration;
 use crate::calibration::calibrated_measurement;
 
+use libm::sqrtf;
+
 use microbit::{display::blocking::Display, hal::Timer};
 
 #[cfg(feature = "v1")]
@@ -47,6 +49,10 @@ fn main() -> ! {
         while !sensor.mag_status().unwrap().xyz_new_data {}
         let mut data = sensor.mag_data().unwrap();
         data = calibrated_measurement(data, &calibration);
-        rprintln!("x: {}, y: {}, z: {}", data.x, data.y, data.z);
+        let x = data.x as f32;
+        let y = data.y as f32;
+        let z = data.z as f32;
+        let magnitude = sqrtf(x * x + y * y + z * z);
+        rprintln!("{} nT, {} mG", magnitude, magnitude/100.0);
     }
 }
